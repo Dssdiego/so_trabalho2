@@ -1,0 +1,9 @@
+Olá Suélen, 
+
+Como minha entrega é um sistema web, segue abaixo o link de acesso e o link do repositório do GitHub, onde o código está hospedado:
+
+Acesso Sistema Web:
+https://so-trabalho-2.herokuapp.com
+
+Github:
+https://github.com/Dssdiego/so_trabalho2

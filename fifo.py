@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+import base64
 
 def fifo():
     num_faltas = 0
@@ -77,17 +78,49 @@ def fifo():
 
     # Cria a tabela
     df = pd.DataFrame(linhas, index=index)
-    st.dataframe(df.style.applymap(cor_falta_pagina))
+    st.dataframe(df.style.applymap(cor_falta_pagina).apply(lambda x: ['color: white; background-color: deeppink' if x.name == 'Página' else '' for i in x], axis=1))
+
+    botao_download(df)
 
     st.write('**Faltas de Página:** ' + str(num_faltas))
     st.write('**Total de Páginas:** ' + str(len(s)))
 
+def botao_download(df):
+    if st.checkbox(label='Baixar Tabela?'):
+        display = ("CSV","Latex","JSON")
+        options = list(range(len(display)))
+        select = st.selectbox(label='Escolha o formato',options=options, format_func=lambda x: display[x])
+
+        if select == 0:
+            csv_link = download_link(df, 'fifo.csv', 'csv')
+            st.markdown(csv_link, unsafe_allow_html=True)
+
+        if select == 1:
+            tex_link = download_link(df, 'fifo.tex', 'latex')
+            st.markdown(tex_link, unsafe_allow_html=True)
+
+        if select == 2:
+            excel_link = download_link(df, 'fifo.json', 'json')
+            st.markdown(excel_link, unsafe_allow_html=True)
+
+
 def cor_falta_pagina(value):
-  if value is 'Não':
-    color = 'red'
-  elif value is 'Sim':
+  if value == 'Sim':
     color = 'green'
   else:
     color = 'black'
 
   return 'color: %s' % color
+
+def download_link(object_to_download, download_filename, mode):
+    if isinstance(object_to_download,pd.DataFrame):
+        if mode == 'latex':
+            object_to_download = object_to_download.to_latex(index=False)
+        if mode == 'csv':
+            object_to_download = object_to_download.to_csv(index=False)
+        if mode == 'json':
+            object_to_download = object_to_download.to_json()
+
+    b64 = base64.b64encode(object_to_download.encode()).decode()
+
+    return f'<a href="data:file/txt;base64,{b64}" download="{download_filename}">{download_filename}</a>'
